@@ -6,7 +6,7 @@
 ![Windows Sockets](https://img.shields.io/badge/Winsock2-4D4D4D?style=for-the-badge&logo=windows&logoColor=white)
 
 ## Project Demo
-![Showcase Demo](demo_v2.webp)
+![Showcase Demo](demo_final.webp)
 
 This project is a **Multi-Threaded Chat Server** built using C++ (Backend) and React (Frontend). The main objective is not just to build a chat application, but to build core Computer Science concepts (OS, DBMS, Networking) from scratch to understand them deeply.
 
@@ -19,9 +19,13 @@ This project is a **Multi-Threaded Chat Server** built using C++ (Backend) and R
 ## Core CS Concepts Implemented
 
 ### 1. Operating Systems (Concurrency & Synchronization)
-- **Multithreading (`std::thread`):** Unlike a single-threaded loop that blocks other users, this server spawns a dedicated OS-level worker thread for every new client connection. (Visible live on the frontend as *Thread Spawned*).
-- **Concurrency & Race Conditions (`std::mutex`):** When multiple clients send messages simultaneously, they try to write to the socket at the exact same millisecond. To prevent data corruption, a Mutual Exclusion lock (`std::lock_guard`) is used to queue the broadcasting safely.
-- **Memory Management & Cleanup:** When a client disconnects unexpectedly, the OS traps the `recv()` failure and gracefully terminates the specific thread, freeing up RAM. (Visible as *Thread Terminated*).
+- **Thread Pool:** Unlike a naive single-threaded loop or a memory-crashing thread-per-client model, this server implements a Custom Thread Pool. It detects hardware CPU cores to pre-allocate worker threads that pull connections from a synchronized Task Queue.
+- **Concurrency & Race Conditions (`std::mutex`):** When multiple clients send messages simultaneously, they try to write to the socket at the exact same millisecond. To prevent data corruption, a Mutual Exclusion lock (`std::lock_guard`) is used to queue the broadcasting safely (visible as *Mutex Locked*).
+- **Memory Management & Cleanup:** When a client disconnects unexpectedly, the OS traps the `recv()` failure, safely removes the socket, and frees the worker thread back to the pool.
+
+### 2. Database Management Systems (SQLite)
+- **ACID Transactions:** Every chat message is intercepted and wrapped in a `BEGIN TRANSACTION` block. If the insert fails, it correctly triggers a `ROLLBACK` to prevent DB corruption, otherwise it issues a `COMMIT` (visible live on the frontend logs).
+- **Dependency Injection:** The SQLite database is securely instantiated in `main.cpp` and injected into the server as a private member to enforce strict Encapsulation.
 
 ### 2. Computer Networks (CN)
 - **TCP vs UDP:** TCP creates a "stream" where data order and delivery are guaranteed.

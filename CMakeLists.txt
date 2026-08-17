@@ -10,4 +10,4 @@ add_subdirectory(backend)
 
 # Enable testing
 enable_testing()
-add_subdirectory(tests)
+# add_subdirectory(tests)

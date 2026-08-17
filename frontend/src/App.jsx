@@ -16,9 +16,11 @@ function App() {
   const [status, setStatus] = useState("Disconnected");
   const [socket, setSocket] = useState(null);
   const [inputMsg, setInputMsg] = useState("");
+  const [forceRollback, setForceRollback] = useState(false);
   
   const [messages, setMessages] = useState([]);
   const [osLogs, setOsLogs] = useState([]);
+  const [dbLogs, setDbLogs] = useState([]);
   const [activeThreads, setActiveThreads] = useState(new Set());
   
   const messagesEndRef = useRef(null);
@@ -45,9 +47,17 @@ function App() {
           const data = JSON.parse(event.data);
           const time = new Date().toLocaleTimeString();
 
-          if (data.type === 'chat') {
+          if (data.type === 'history') {
+            // Load history array from DB
+            setMessages(data.messages);
+          }
+          else if (data.type === 'chat') {
             setMessages((prev) => [...prev, { sender: data.sender, text: data.text }]);
           } 
+          else if (data.type === 'db_event') {
+            const logEntry = `[${time}] ${data.event}`;
+            setDbLogs((prev) => [...prev, logEntry]);
+          }
           else if (data.type === 'os_event') {
             const logEntry = `[${time}] [Thread ${data.thread_id}] ${data.event}`;
             setOsLogs((prev) => [...prev, logEntry]);
@@ -92,7 +102,8 @@ function App() {
 
   const sendMessage = () => {
     if (socket && inputMsg !== "") {
-      socket.send(inputMsg);
+      const payload = forceRollback ? "/rollback " + inputMsg : inputMsg;
+      socket.send(payload);
       setMessages(prev => [...prev, { sender: 'You', text: inputMsg }]);
       setInputMsg(""); 
     }
@@ -131,6 +142,17 @@ function App() {
               style={{ width: '80%', padding: '5px' }}
             />
             <button onClick={sendMessage} style={{ padding: '5px 10px', marginLeft: '5px' }}>Send</button>
+            <div style={{ marginTop: '10px' }}>
+              <label style={{ fontSize: '0.9rem', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={forceRollback} 
+                  onChange={(e) => setForceRollback(e.target.checked)} 
+                  style={{ marginRight: '5px' }}
+                />
+                Force Transaction Failure (Demo Rollback)
+              </label>
+            </div>
           </div>
 
           {/* Sent Messages Box */}
@@ -162,6 +184,27 @@ function App() {
             {osLogs.length === 0 ? "No logs yet." : ""}
             {osLogs.map((log, i) => (
               <div key={i} style={{ marginBottom: '5px' }}>{log}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* DBMS Logs Section */}
+        <div style={{ flex: 1, border: '4px solid black', padding: '10px', display: 'flex', flexDirection: 'column' }}>
+          <h3>DBMS Logs (SQLite)</h3>
+          
+          {/* Explanation Legend */}
+          <div style={{ backgroundColor: '#e9f5e9', border: '1px solid #ccc', padding: '10px', marginBottom: '10px', fontSize: '0.85rem', color: '#333' }}>
+            <strong>Legend:</strong>
+            <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px' }}>
+              <li><strong>ACID Properties:</strong> Transactions are wrapped in BEGIN and COMMIT blocks.</li>
+              <li><strong>Persistence:</strong> Chat messages are securely INSERTed into test.db before broadcasting.</li>
+            </ul>
+          </div>
+
+          <div style={{ flex: 1, height: '300px', overflowY: 'scroll', border: '3px solid gray', padding: '10px', fontFamily: 'monospace' }}>
+            {dbLogs.length === 0 ? "No database transactions yet." : ""}
+            {dbLogs.map((log, i) => (
+              <div key={i} style={{ marginBottom: '5px', color: log.includes('COMMIT') ? 'green' : (log.includes('BEGIN') ? 'blue' : 'black') }}>{log}</div>
             ))}
           </div>
         </div>
