@@ -1,0 +1,33 @@
+# C++ Build Artifacts
+*.exe
+*.obj
+*.o
+*.lib
+*.dll
+*.pdb
+*.ilk
+.vscode/
+build/
+server_test.exe
+
+# Frontend / Node
+node_modules/
+dist/
+dist-ssr/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS Files
+.DS_Store
+Thumbs.db
