@@ -6,7 +6,7 @@
 ![Windows Sockets](https://img.shields.io/badge/Winsock2-4D4D4D?style=for-the-badge&logo=windows&logoColor=white)
 
 ## Project Demo
-![Showcase Demo](demo_final.webp)
+![Showcase Demo](demo_final_v2.webp)
 
 This project is a **Multi-Threaded Chat Server** built using C++ (Backend) and React (Frontend). The main objective is not just to build a chat application, but to build core Computer Science concepts (OS, DBMS, Networking) from scratch to understand them deeply.
 
