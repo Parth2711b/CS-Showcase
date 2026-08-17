@@ -1,5 +1,10 @@
 # Multithreaded TCP WebSocket Server & OS Visualizer
 
+![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![CMake](https://img.shields.io/badge/CMake-064F8C?style=for-the-badge&logo=cmake&logoColor=white)
+![Windows Sockets](https://img.shields.io/badge/Winsock2-4D4D4D?style=for-the-badge&logo=windows&logoColor=white)
+
 This project is a **Multi-Threaded Chat Server** built using C++ (Backend) and React (Frontend). The main objective is not just to build a chat application, but to build core Computer Science concepts (OS, DBMS, Networking) from scratch to understand them deeply.
 
 ## Tech Stack
