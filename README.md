@@ -26,6 +26,25 @@ This project is a **Multi-Threaded Chat Server** built using C++ (Backend) and R
 - **Custom Protocol:** Designed the structure for JSON-based payloads (`chat`, `os_event`).
 
 ## Architecture & Design Decisions
+
+```mermaid
+graph TD
+    subgraph Frontend [React Visualizer]
+        UI[React UI] <--> WS[Native WebSockets]
+    end
+
+    subgraph Backend [C++ Server Core]
+        S[TCP Server] -->|Accepts Connection| H[WebSocket Handshake]
+        H -->|Spawns Thread| T[std::thread Worker]
+        
+        T -->|Receives Payload| P[XOR Unmasking]
+        P -->|Locks| M((std::mutex))
+        M -->|Broadcasts JSON| C[(Connected Clients Vector)]
+    end
+
+    WS <-->|ws://localhost:8080| S
+```
+
 - **The Handshake Process:** The browser sends a normal HTTP request with a secret `Sec-WebSocket-Key`. The C++ Server appends a Magic GUID `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` to it. The combined string is hashed via `SHA-1` and encoded in `Base64`. The final response is sent as `HTTP/1.1 101 Switching Protocols`.
 - **Security & Hacking Prevention:** This complicated math prevents non-WebSocket servers (like a Router or Printer) from accidentally connecting.
 - **OOPs Architecture:** Smart use of C++ Inheritance. `TCPServer` (Parent) handles basic sockets (bind, listen, accept), and `WebSocketServer` (Child) uses the parent's work to focus solely on the new rules (Handshake/Parsing).
